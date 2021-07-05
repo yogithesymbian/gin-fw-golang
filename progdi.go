@@ -7,6 +7,7 @@ import (
 	*/
 
 	"database/sql"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -58,5 +59,29 @@ func main(){
 	})
 
 	// show all Data
+	router.GET("/", func(c *gin.Context) {
+		var (
+			progdi Progdi
+			progdis []Progdi
+		)
+
+		rows, err := db.Query("select id, jenjang, nmprogdi from progdi;")
+		if err != nil {
+			fmt.Print(err.Error())
+		}
+		for rows.Next(){
+			err = rows.Scan(&progdi.Id, &progdi.Jenjang, &progdi.NmProgdi)
+			progdis = append(progdis, progdi)
+			if err != nil {
+				fmt.Print(err.Error())
+			}
+		}
+		defer rows.Close()
+		c.JSON(http.StatusOK, gin.H{
+			"status" : "success",
+			"message" : "show all data",
+			"data" : progdis,
+		})
+	})
 	router.Run(":8080")
 }
